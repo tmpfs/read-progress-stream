@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Stream wrapper for a tokio File that reports the progress of bytes read"
 authors = ["muji <muji@tmpfs.org>"]
 edition = "2018"
+repository = "https://github.com/tmpfs/read-progress-stream"
+license = "MIT OR Apache-2.0"
 keywords = [
   "tokio",
   "stream",

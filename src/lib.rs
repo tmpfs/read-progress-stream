@@ -15,10 +15,11 @@
 //! let file = tokio::fs::File::from_std(file);
 //!
 //! // Progress handler to be called as bytes are read
-//! let progress = Box::new(|read: u64, total: u64| {
-//!     println!("Uploaded {} / {}", read, total);
+//! let progress = Box::new(|amount: u64, total: u64| {
+//!     println!("Uploaded {} chunk", amount);
+//!     println!("Uploaded {} bytes", total);
 //! });
-//! let stream = ReadProgressStream::new(file, size, progress);
+//! let stream = ReadProgressStream::new(file, progress);
 //!
 //! // Create a `ByteStream` from `rusoto_core`
 //! let body = ByteStream::new_with_size(stream, size as usize);
@@ -35,14 +36,17 @@ use futures_util::TryStreamExt;
 use tokio_util::codec;
 use bytes::Bytes;
 
-type ProgressHandler = Box<dyn FnMut(u64, u64) + Send + Sync + 'static>;
+/// Progress handler is called with information about the file read progress.
+///
+/// The first argument is the amount of bytes that were just read 
+/// and the second argument is the total number of bytes read so far.
+pub type ProgressHandler = Box<dyn FnMut(u64, u64) + Send + Sync + 'static>;
 
 pin_project! {
     /// Wrap a tokio File and store the bytes read.
     pub struct ReadProgressStream {
         #[pin]
         inner: Pin<Box<dyn Stream<Item = std::io::Result<Bytes>> + Send + Sync + 'static>>,
-        size: u64,
         bytes_read: u64,
         progress: ProgressHandler,
     }
@@ -53,10 +57,10 @@ impl ReadProgressStream {
     /// Create a wrapped stream for the File.
     ///
     /// The progress function will be called as bytes are read from the underlying file.
-    pub fn new(file: tokio::fs::File, size: u64, progress: ProgressHandler) -> Self {
+    pub fn new(file: tokio::fs::File, progress: ProgressHandler) -> Self {
         let reader = codec::FramedRead::new(file, codec::BytesCodec::new());
         let inner = Box::pin(reader.map_ok(|r| r.freeze()));
-        ReadProgressStream { inner, size, progress, bytes_read: 0 }
+        ReadProgressStream { inner, progress, bytes_read: 0 }
     }
 }
 
@@ -75,7 +79,7 @@ impl Stream for ReadProgressStream {
                         match result {
                             Ok(bytes) => {
                                 *this.bytes_read += bytes.len() as u64;
-                                (this.progress)(this.bytes_read.clone(), this.size.clone());
+                                (this.progress)(bytes.len() as u64, this.bytes_read.clone());
                                 Poll::Ready(Some(Ok(bytes)))
                             }
                             Err(e) => Poll::Ready(Some(Err(e)))

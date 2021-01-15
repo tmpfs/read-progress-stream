@@ -35,7 +35,7 @@ use futures_util::TryStreamExt;
 use tokio_util::codec;
 use bytes::Bytes;
 
-type ProgressHandler = Box<dyn Fn(u64, u64) + Send + Sync + 'static>;
+type ProgressHandler = Box<dyn FnMut(u64, u64) + Send + Sync + 'static>;
 
 pin_project! {
     /// Wrap a tokio File and store the bytes read.

@@ -1,6 +1,6 @@
 [package]
 name = "read-progress-stream"
-version = "0.1.0"
+version = "0.2.0"
 description = "Stream wrapper for a tokio File that reports the progress of bytes read"
 authors = ["muji <muji@tmpfs.org>"]
 edition = "2018"

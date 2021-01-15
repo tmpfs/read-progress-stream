@@ -1,12 +1,19 @@
 [package]
 name = "read-progress-stream"
 version = "0.1.0"
-description = "Stream wrapper for a tokio File that reports read progress"
+description = "Stream wrapper for a tokio File that reports the progress of bytes read"
 authors = ["muji <muji@tmpfs.org>"]
 edition = "2018"
+keywords = [
+  "tokio",
+  "stream",
+  "progress",
+  "rusoto",
+  "s3",
+  "upload"
+]
 
 [dependencies]
-
 tokio = { version = "0.2.22", features = ["fs"] }
 tokio-util = { version = "0.3", default-features = false, features = ["codec"] }
 bytes = "0.5"

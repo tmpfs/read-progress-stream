@@ -1,0 +1,15 @@
+[package]
+name = "read-progress-stream"
+version = "0.1.0"
+description = "Stream wrapper for a tokio File that reports read progress"
+authors = ["muji <muji@tmpfs.org>"]
+edition = "2018"
+
+[dependencies]
+
+tokio = { version = "0.2.22", features = ["fs"] }
+tokio-util = { version = "0.3", default-features = false, features = ["codec"] }
+bytes = "0.5"
+futures = "0.3"
+futures-util = { version = "0.3.4" }
+pin-project-lite = "0.2"
